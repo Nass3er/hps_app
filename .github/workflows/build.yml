@@ -55,8 +55,8 @@ jobs:
             npm run build
           fi
 
-      - name: Build Android APK
-        run: php artisan native:build android --debug
+      - name: Package Android APK
+        run: php artisan native:package android --no-tty
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
@@ -64,5 +64,7 @@ jobs:
           name: app-debug-apk
           path: |
             nativephp/android/app/build/outputs/apk/debug/*.apk
+            nativephp/android/app/build/outputs/apk/release/*.apk
             android/app/build/outputs/apk/debug/*.apk
-            **/*.apk
+            **/*.apk
+
