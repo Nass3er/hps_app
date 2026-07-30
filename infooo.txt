@@ -1,0 +1,79 @@
+نعم، توجد حلول سحابية ممتازة تمكّنك من بناء ملف الـ **APK** في السحاب (Cloud) مجاناً ودون الحاجة لتثبيت أي برنامج أو استهلاك أي مساحة من جهازك.
+
+إليك **أفضل وأسهل طريقتين**:
+
+---
+
+### 1️⃣ الطريقة الأولى: عن طريق GitHub Actions (مجانية 100% وموصى بها)
+
+تتيح لك منصة GitHub خوادم مجانية لبناء وترجمة التطبيقات في السحاب. كل ما عليك هو رفع مشروعك على حسابك في GitHub وسيقوم السيرفر ببناء ملف الـ APK وتجهيزه للتنزيل.
+
+#### **الخطوات:**
+
+1. **إنشاء مجلد إعدادات البناء في مشروعك:**
+   قم بإنشاء مجلد باسم `.github` وداخله مجلد `workflows` ثم أنشئ ملفاً باسم `build.yml` في المسار التالي:
+   `.github/workflows/build.yml`
+
+2. **ضع الكود التالي داخل ملف `build.yml`:**
+   ```yaml
+   name: Build Android APK
+
+   on:
+     push:
+       branches: [ main, master ]
+     workflow_dispatch:
+
+   jobs:
+     build:
+       runs-on: ubuntu-latest
+
+       steps:
+         - name: Checkout code
+           uses: actions/checkout@v4
+
+         - name: Setup PHP
+           uses: shivammathur/setup-php@v2
+           with:
+             php-version: '8.3'
+             extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
+             coverage: none
+
+         - name: Setup Java JDK
+           uses: actions/setup-java@v4
+           with:
+             distribution: 'zulu'
+             java-version: '17'
+
+         - name: Setup Android SDK
+           uses: android-actions/setup-android@v3
+
+         - name: Install Composer Dependencies
+           run: composer install --prefer-dist --no-progress --no-interaction
+
+         - name: Build Android APK
+           run: php artisan native:build android --debug
+
+         - name: Upload APK Artifact
+           uses: actions/upload-artifact@v4
+           with:
+             name: app-debug-apk
+             path: android/app/build/outputs/apk/debug/*.apk
+   ```
+
+3. **رفع الكود إلى GitHub:**
+   اعمل `git push` لمشروعك إلى مستودعك (Repository) في GitHub.
+
+4. **تحميل ملف الـ APK:**
+   * افتح مشروعك على موقع GitHub واذهب لتبويب **Actions**.
+   * ستجد أن سيرفرات GitHub بدأت تلقائياً ببناء التطبيق.
+   * عند اكتمال البناء (عادةً خلال 3 إلى 5 دقائق)، ستجد ملف الـ **`app-debug-apk`** جاهزاً للتنزيل مباشرة أسفل الصفحة.
+
+---
+
+### 2️⃣ الطريقة الثانية: منصة Bifrost (الرسمية لـ NativePHP)
+
+مطوروا NativePHP يوفرون منصة سحابية رسمية تسمى **Bifrost**:
+
+1. ادخل على الموقع الرسمية: [bifrost.nativephp.com](https://bifrost.nativephp.com)
+2. قم بتسجيل الدخول باستخدام حسابك في GitHub.
+3. اختر مشروعك، وستتولى المنصة بناء ملفات الـ APK والـ AAB في السحاب وإعطائك رابط تنزيل مباشر أو مشاركته مع العميل.
