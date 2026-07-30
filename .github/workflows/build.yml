@@ -13,11 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, bcmath
           coverage: none
 
       - name: Setup Java JDK
@@ -29,8 +34,23 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Create .env file
+        run: |
+          cp .env.example .env || true
+          php -r "file_exists('.env') || copy('.env.example', '.env');"
+
       - name: Install Composer Dependencies
         run: composer install --prefer-dist --no-progress --no-interaction --ignore-platform-reqs
+
+      - name: Generate App Key
+        run: php artisan key:generate
+
+      - name: Install NPM Dependencies & Build Assets
+        run: |
+          if [ -f "package.json" ]; then
+            npm install
+            npm run build
+          fi
 
       - name: Build Android APK
         run: php artisan native:build android --debug
