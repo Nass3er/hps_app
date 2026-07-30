@@ -34,16 +34,19 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Create .env file
+      - name: Create SQLite Database and .env
         run: |
           cp .env.example .env || true
-          php -r "file_exists('.env') || copy('.env.example', '.env');"
+          touch database/database.sqlite
 
       - name: Install Composer Dependencies
         run: composer install --prefer-dist --no-progress --no-interaction --ignore-platform-reqs
 
       - name: Generate App Key
         run: php artisan key:generate
+
+      - name: Run NativePHP Installer
+        run: php artisan native:install --no-interaction || true
 
       - name: Install NPM Dependencies & Build Assets
         run: |
